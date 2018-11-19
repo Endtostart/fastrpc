@@ -1,5 +1,5 @@
 package serialize;
 
-public abstract class AbstractJsonSerialize<T> implements Decode<T>,Encode{
+public abstract class AbstractJsonSerialize implements Decode,Encode{
 
 }

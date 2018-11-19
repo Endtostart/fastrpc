@@ -1,10 +1,8 @@
 package rpc;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import message.IRequest;
 import message.IResponse;
-import message.Request;
 import message.Response;
 import netty.NettyClient;
 import org.slf4j.Logger;
@@ -30,15 +28,27 @@ public class ClientService<T> {
         return response;
     }
 
-    public IResponse doCall(IRequest request, Type clazz) throws ClassNotFoundException {
+    public IResponse doCall(IRequest request, Type type) throws ClassNotFoundException {
         logger.info("do calll >> request :");
         String message = JsonSerializeFactory.getEncode().encode(request);
         logger.info(message);
-        client.send(message);
-        String result = "{\"requestId\":\"123456\",\"value\":{\"interfaceName\":\"PublicClass\",\"methodName\":\"hello\"}}";
-        //IResponse response = (IResponse<T>) JsonSerializeFactory.getDecode().decode(result, new Response<>(){}.getClass());
-        IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result,new Response<Request>(){}.getClass().getSuperclass());
-        //IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result, JSON.parseObject(message, clazz));
+        String result = client.send(message);
+        //String result = "{\"requestId\":\"123456\",\"value\":{\"interfaceName\":\"PublicClass\",\"methodName\":\"hello\"}}";
+
+        /**
+         *
+         * TODO
+         * 因为调用返回 IResponse<T> 需要根据 T 的具体类型json反序列化
+         * 传入的参数 type 为通过反射拿到的方法返回类型 也就对应的是T的类型
+         * 这里封装一个 反序列需要的 Type类型 利用ParameterizedTypeImpl封装
+         * 当然应该可以有其他的更优雅，健壮的方法
+         *
+         * 需要考虑 异常 和 无返回的情况
+         *
+         */
+        Type resType = new ParameterizedTypeImpl(new Type[]{type}, null, Response.class);
+
+        IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result, resType);
         return response;
     }
 

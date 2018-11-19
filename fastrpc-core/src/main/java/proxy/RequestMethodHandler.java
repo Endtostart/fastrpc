@@ -1,6 +1,5 @@
 package proxy;
 
-import com.alibaba.fastjson.JSONObject;
 import exception.RpcException;
 import message.DefaultMessageHandler;
 import message.IRequest;
@@ -38,17 +37,23 @@ public class RequestMethodHandler<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        IRequest request = DefaultMessageHandler.buildRequest(clazz, method, args);
-        try {
-            Type returnType = method.getReturnType();
-            IResponse response = clientService.doCall(request,returnType);
-            Object value = response.getValue();
-            logger.info("返回结果:" + value.toString());
-            return value;
-        } catch (Exception e) {
-            logger.info("调用失败");
-            throw new RpcException("调用失败");
-        }
 
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method m : methods) {
+            if (m.getName().equals(method.getName())) {
+                IRequest request = DefaultMessageHandler.buildRequest(clazz, method, args);
+                try {
+                    Type returnType = method.getReturnType();
+                    IResponse response = clientService.doCall(request,returnType);
+                    Object value = response.getValue();
+                    logger.info("返回结果:" + value.toString());
+                    return value;
+                } catch (Exception e) {
+                    logger.info("调用失败...");
+                    throw new RpcException("调用失败");
+                }
+            }
+        }
+        return null;
     }
 }

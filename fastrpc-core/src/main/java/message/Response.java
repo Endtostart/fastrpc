@@ -10,6 +10,19 @@ public class Response<T> implements Serializable,IResponse<T>{
 
     private T value;
 
+    public Response() {
+
+    }
+
+    public Response(T value) {
+        this.value = value;
+    }
+
+    public Response(String requestId, T value) {
+        this.requestId = requestId;
+        this.value = value;
+    }
+
     @Override
     public void setRequestId(String requestId) {
         this.requestId = requestId;

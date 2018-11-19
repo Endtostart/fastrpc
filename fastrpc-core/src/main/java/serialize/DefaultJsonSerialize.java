@@ -1,18 +1,18 @@
 package serialize;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import message.IRequest;
 import message.IResponse;
 import message.Request;
 import message.Response;
 
-public class DefaultJsonSerialize<T> extends AbstractJsonSerialize<T> {
+import java.lang.reflect.Type;
+
+public class DefaultJsonSerialize extends AbstractJsonSerialize {
 
     @Override
-    public Object decode(String json, Class<T> clazz) {
-        return JSON.parseObject(json,clazz);
+    public <T> T decode(String json, Type type) {
+        return (T)JSON.parseObject(json,type);
     }
 
     @Override

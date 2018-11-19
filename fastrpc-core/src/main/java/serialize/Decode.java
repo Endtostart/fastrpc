@@ -1,6 +1,8 @@
 package serialize;
 
-public interface Decode<T> {
-    Object decode(String json, Class<T> clazz);
+import java.lang.reflect.Type;
+
+public interface Decode {
+    <T> T decode(String json, Type type);
 }
 

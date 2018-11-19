@@ -1,9 +1,11 @@
 package proxy;
 
+import java.lang.reflect.Proxy;
+
 public class ProviderProxyFactory<T> implements ProxyFactoty<T>{
     @Override
     public T getProxy(T target) {
-        return null;
+        return (T) Proxy.newProxyInstance(ProviderProxyFactory.class.getClassLoader(),target.getClass().getInterfaces(),new ResponseMethodHandler(target));
     }
 
     @Override
