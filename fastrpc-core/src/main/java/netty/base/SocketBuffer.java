@@ -2,6 +2,7 @@ package netty.base;
 
 import com.google.common.base.Strings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,9 +17,9 @@ public class SocketBuffer {
 
     private Boolean hasClientMsg;
 
-    private List<Listener> serverListeners;
+    private List<Listener> serverListeners = new ArrayList<>();
 
-    private List<Listener> clientListeners;
+    private List<Listener> clientListeners = new ArrayList<>();
 
     public String getServerStack() {
         return serverStack;
@@ -35,6 +36,7 @@ public class SocketBuffer {
 
     public void setClientStack(String clientStack) {
         this.clientStack = clientStack;
+        trackClientAction();
     }
 
     public Boolean hasServerMsg() {
@@ -51,14 +53,26 @@ public class SocketBuffer {
         }
     }
 
-    public Listener removerServerListener(Listener listener) {
-        Listener temp = listener;
+    public Listener removeServerListener(Listener listener) {
         serverListeners.remove(listener);
-        return temp;
+        return listener;
+    }
+
+    public void addClientListener(Listener listener) {
+        clientListeners.add(listener);
+    }
+
+    public Listener removeClientListener(Listener listener) {
+        clientListeners.remove(listener);
+        return listener;
     }
 
     public void clearServerListener() {
         serverListeners.clear();
+    }
+
+    public void clearClientListener() {
+        clientListeners.clear();
     }
 
     public void trackServerAction() {
@@ -66,5 +80,12 @@ public class SocketBuffer {
             return;
         }
         serverListeners.forEach(e -> e.action());
+    }
+
+    public void trackClientAction() {
+        if (clientListeners == null || clientListeners.isEmpty()) {
+            return;
+        }
+        clientListeners.forEach(e -> e.action());
     }
 }

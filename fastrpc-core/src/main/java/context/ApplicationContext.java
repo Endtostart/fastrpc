@@ -17,6 +17,7 @@ public class ApplicationContext {
     static {
         context.put(DefaultJsonSerialize.class, new DefaultJsonSerialize());
         context.put(ProviderProxyFactory.class, new ProviderProxyFactory());
+        context.put(StaticPanel.class, new StaticPanel());
         context.put(SocketBuffer.class, new SocketBuffer());
         context.put(VirtualServer.class, new VirtualServer());
     }
@@ -38,9 +39,8 @@ public class ApplicationContext {
     }
 
     public static void registService(Class clazz, Object object) {
-        StaticPanel staticPanel = new StaticPanel();
+        StaticPanel staticPanel = (StaticPanel) context.get(StaticPanel.class);
         staticPanel.putMapper(clazz, object);
-        context.put(StaticPanel.class, staticPanel);
     }
 
 }

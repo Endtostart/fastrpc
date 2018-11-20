@@ -1,4 +1,5 @@
 import context.ApplicationContext;
+import netty.VirtualServer;
 import proxy.ClientProxyFactoty;
 
 public class Lab {
@@ -7,6 +8,8 @@ public class Lab {
 
 
         ApplicationContext.registService(Sample.class, new SampleImpl());
+        VirtualServer server = (VirtualServer) ApplicationContext.get(VirtualServer.class);
+        server.accept();
         ClientProxyFactoty proxy = new ClientProxyFactoty();
         Sample sampleProxy = (Sample) proxy.getProxy(Sample.class);
 

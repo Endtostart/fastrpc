@@ -91,7 +91,7 @@ public class ProviderService {
         for (Method method : methods) {
             // TODO 未处理重载的情况
             if (method.getName().equals(request.getMethodName())) {
-                resMessage = (String) method.invoke(target, request.getParams());
+                method.invoke(target, request.getParams());
             }
         }
 
