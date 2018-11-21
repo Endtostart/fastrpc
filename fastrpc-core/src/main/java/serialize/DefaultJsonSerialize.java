@@ -1,6 +1,7 @@
 package serialize;
 
 import com.alibaba.fastjson.JSON;
+import exception.UnSupportException;
 import message.IRequest;
 import message.IResponse;
 import message.Request;
@@ -8,11 +9,16 @@ import message.Response;
 
 import java.lang.reflect.Type;
 
-public class DefaultJsonSerialize extends AbstractJsonSerialize {
+public class DefaultJsonSerialize implements GeneralSerialize {
 
     @Override
     public <T> T decode(String json, Type type) {
         return (T)JSON.parseObject(json,type);
+    }
+
+    @Override
+    public <T> T decode(byte[] bytes, Class clazz) {
+        throw new UnSupportException("Json serialize unsupport params type: byte[]");
     }
 
     @Override
