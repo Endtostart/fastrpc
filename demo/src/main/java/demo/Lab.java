@@ -35,12 +35,5 @@ public class Lab {
         BootStrap bootStrap = new BootStrap(config);
         bootStrap.start();
 
-        RpcBeanContent rpcBeanContent = bootStrap.getBeanContent();
-        ServiceContent content = bootStrap.getServiceContent();
-
-        int a = 0;
-        System.out.println(a);
-
-
     }
 }
