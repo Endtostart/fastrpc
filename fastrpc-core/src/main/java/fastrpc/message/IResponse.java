@@ -10,4 +10,6 @@ public interface IResponse<T> {
 
     public T getValue();
 
+    public boolean hasException();
+
 }

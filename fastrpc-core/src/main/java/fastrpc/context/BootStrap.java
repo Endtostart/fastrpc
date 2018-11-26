@@ -1,5 +1,6 @@
 package fastrpc.context;
 
+import fastrpc.context.config.ApplicationConfig;
 import fastrpc.context.register.ServiceContent;
 import fastrpc.utils.ClassUtils;
 
@@ -36,7 +37,7 @@ public class BootStrap {
         start();
     }
 
-    public void postDepandence() {
+    private void postDepandence() {
         /**
          * TODO
          * 这里写的过于固定化，目的。根据接口继承，注入服务方法上下文

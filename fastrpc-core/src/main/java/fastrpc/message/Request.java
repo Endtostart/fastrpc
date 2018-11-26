@@ -1,6 +1,7 @@
 package fastrpc.message;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 public class Request implements Serializable,IRequest{
@@ -8,6 +9,8 @@ public class Request implements Serializable,IRequest{
     private static final long serialVersionUID = 1168814620391610215L;
 
     private String requestId;
+
+    private Method method;
 
     private String interfaceName;
 
@@ -24,6 +27,11 @@ public class Request implements Serializable,IRequest{
     @Override
     public String getRequestId() {
         return requestId;
+    }
+
+    @Override
+    public Method getMethod() {
+        return this.method;
     }
 
     @Override
@@ -49,6 +57,11 @@ public class Request implements Serializable,IRequest{
     @Override
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    @Override
+    public void setMethod(Method method) {
+        this.method = method;
     }
 
     @Override

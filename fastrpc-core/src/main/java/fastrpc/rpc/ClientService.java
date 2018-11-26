@@ -33,7 +33,7 @@ public class ClientService<T> {
         return response;
     }
 
-    public IResponse doCall(IRequest request, Type type) throws ClassNotFoundException {
+    public IResponse doCall(IRequest request, Type type){
         logger.info("do calll >> request :");
         byte[] message = generalSerialize.encodeToByte(request);
         byte[] result = client.send(message);
@@ -54,14 +54,7 @@ public class ClientService<T> {
 
         //IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result, resType);
         IResponse response = generalSerialize.decode(result, Response.class);
-
-        /*IResponse response = new Response();
-        response.setRequestId(request.getRequestId());
-        response.setValue(value);*/
         return response;
     }
-
-
-
 
 }

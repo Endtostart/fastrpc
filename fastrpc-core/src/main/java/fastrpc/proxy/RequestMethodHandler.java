@@ -1,10 +1,10 @@
 package fastrpc.proxy;
 
-import fastrpc.context.ApplicationContext;
 import fastrpc.context.annotation.Bean;
 import fastrpc.context.annotation.Weave;
 import fastrpc.exception.RpcException;
 import fastrpc.message.DefaultMessageHandler;
+import fastrpc.message.ExceptionResponse;
 import fastrpc.message.IRequest;
 import fastrpc.message.IResponse;
 import fastrpc.rpc.ClientService;
@@ -50,10 +50,17 @@ public class RequestMethodHandler<T> implements InvocationHandler {
                 try {
                     Type returnType = method.getReturnType();
                     IResponse response = clientService.doCall(request,returnType);
+                    if (response.hasException()) {
+                        RpcException rpcException = ((ExceptionResponse) response).getValue();
+                        throw rpcException;
+                    }
                     Object value = response.getValue();
                     logger.info("返回结果:" + value.toString());
                     return value;
-                } catch (Exception e) {
+                }catch (RpcException ex){
+                    logger.info("调用处理失败 :" + ex.getMessage());
+                    return null;
+                }catch (Exception e) {
                     logger.info("调用失败...");
                     throw new RpcException("调用失败");
                 }

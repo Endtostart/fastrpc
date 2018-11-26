@@ -1,10 +1,15 @@
 package fastrpc.message;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 public interface IRequest {
 
     public String getRequestId();
+
+    public Method getMethod();
+
+    public void setMethod(Method method);
 
     public String getInterfaceName();
 

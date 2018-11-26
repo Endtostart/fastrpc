@@ -43,4 +43,9 @@ public class Response<T> implements Serializable,IResponse<T>{
         return value;
     }
 
+    @Override
+    public boolean hasException() {
+        return false;
+    }
+
 }

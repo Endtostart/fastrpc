@@ -13,6 +13,4 @@ public class RpcCallbackException extends RpcException{
     public void doCallBack(VirtualServer virtualServer) {
         virtualServer.response(this.data);
     }
-
-
 }

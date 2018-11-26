@@ -11,7 +11,7 @@ import fastrpc.message.IResponse;
 import fastrpc.message.Request;
 import fastrpc.proxy.ProviderProxyFactory;
 import fastrpc.serialize.GeneralSerialize;
-import fastrpc.utils.StringUtils;
+import fastrpc.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +33,9 @@ public class ProviderService implements ServiceApplicationAwake {
 
     public void doProcess(byte[] message) {
         if (message == null || message.length == 0) {
-            IResponse response = new ExceptionResponse("fastrpc.message is null");
+            IResponse response = new ExceptionResponse("fastrpc message is null");
             byte[] resMessage = generalSerialize.encodeToByte(response);
-            throw new RpcCallbackException("调用数据包非法", message);
+            throw new RpcCallbackException("调用数据包非法", resMessage);
         }
 
         String res = null;
@@ -51,7 +51,7 @@ public class ProviderService implements ServiceApplicationAwake {
         if (res == null) {
             IResponse response = new ExceptionResponse(res);
             byte[] resMessage = generalSerialize.encodeToByte(response);
-            throw new RpcCallbackException("处理结果异常", message);
+            throw new RpcCallbackException("处理结果异常", resMessage);
         }
     }
 
@@ -91,8 +91,7 @@ public class ProviderService implements ServiceApplicationAwake {
 
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            // TODO 未处理重载的情况
-            if (method.getName().equals(request.getMethodName())) {
+            if (ClassUtils.compareMethod(method, request.getMethod())) {
                 method.invoke(target, request.getParams());
             }
         }
