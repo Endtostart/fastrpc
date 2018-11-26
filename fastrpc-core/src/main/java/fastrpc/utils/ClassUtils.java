@@ -4,6 +4,8 @@ import fastrpc.context.annotation.RpcService;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -59,5 +61,28 @@ public class ClassUtils {
             }
         }
         return classes;
+    }
+
+    /**
+     * 判断两个方法是否相同
+     */
+    public static boolean compareMethod(Method m1, Method m2) {
+        if (!m1.getName().equals(m2.getName())) {
+            return false;
+        }
+
+        Type[] paramType1 = m1.getParameterTypes();
+        Type[] paramType2 = m2.getParameterTypes();
+        if (paramType1.length != paramType2.length) {
+            return false;
+        }
+
+        for (int i = 0; i < paramType1.length; i++) {
+            if (!paramType1[i].getTypeName().equals(paramType2[i].getTypeName())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

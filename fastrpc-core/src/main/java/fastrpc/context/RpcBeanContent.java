@@ -4,23 +4,21 @@ import fastrpc.context.annotation.Bean;
 import fastrpc.context.annotation.Weave;
 import fastrpc.context.exception.WeaveException;
 import fastrpc.context.support.BeanUtils;
+import fastrpc.exception.BeanNotFindException;
+import fastrpc.exception.ParameterValidException;
 import fastrpc.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * TODO
  * 目前只实现了属性注入
- *
  */
-public class RpcBeanContent implements BeanContent{
+public class RpcBeanContent implements BeanContent {
     private static final String packagePath = "fastrpc";
     private Map<String, Object> beanNameInstanceMapper = new HashMap<>();
     private Map<String, Class> classNamemapper = new HashMap<>();
@@ -49,13 +47,14 @@ public class RpcBeanContent implements BeanContent{
 
     private void mapperBean() throws IllegalAccessException {
         for (Class clazz : classList) {
-            String beanName = ((Bean)clazz.getAnnotation(Bean.class)).name();
+            String beanName = ((Bean) clazz.getAnnotation(Bean.class)).name();
             if (beanName.equals("")) {
                 beanName = StringUtils.lowerFirstWorld(clazz.getSimpleName());
             }
 
             boolean isInstance = ((Bean) clazz.getAnnotation(Bean.class)).instance();
             if (!isInstance) {
+                classNamemapper.put(clazz.getSimpleName(), clazz);
                 continue;
             }
             Object instance = BeanUtils.getBeanInstance(clazz);
@@ -81,7 +80,7 @@ public class RpcBeanContent implements BeanContent{
                 if (field.isAnnotationPresent(Weave.class)) {
                     String filedName = StringUtils.lowerFirstWorld(field.getType().getSimpleName());
                     Weave annotation = field.getAnnotation(Weave.class);
-                    if (!annotation.name().equals("")){
+                    if (!annotation.name().equals("")) {
                         filedName = annotation.name();
                     }
                     logger.info("获取bean实例：" + filedName);
@@ -119,8 +118,32 @@ public class RpcBeanContent implements BeanContent{
         }
     }
 
-    @Override
-    public <T> T getBeanByName(String name) {
-        return (T) beanNameInstanceMapper.get(name);
+    public List<Class> getClassList() {
+        return this.classList;
     }
+
+    public Map<String, Object> getBeanNameInstanceMapper() {
+        return this.beanNameInstanceMapper;
+    }
+
+    @Override
+
+    public <T> T getBeanByName(String name) {
+        T res = (T) beanNameInstanceMapper.get(name);
+        if (Objects.isNull(res)) {
+            throw new BeanNotFindException("Can't found this bean : " + name);
+        }
+        return res;
+    }
+
+    @Override
+    public <T> T getBean(Class<T> clazz) {
+        if (clazz == null) {
+            throw new ParameterValidException("Parameter Validation Exception : clazz null");
+        }
+
+        String name = StringUtils.lowerFirstWorld(clazz.getSimpleName());
+        return getBeanByName(name);
+    }
+
 }

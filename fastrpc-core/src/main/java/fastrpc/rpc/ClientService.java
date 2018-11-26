@@ -53,7 +53,11 @@ public class ClientService<T> {
         Type resType = new ParameterizedTypeImpl(new Type[]{type}, null, Response.class);
 
         //IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result, resType);
-        IResponse response = generalSerialize.decode(result, (Class) type);
+        IResponse response = generalSerialize.decode(result, Response.class);
+
+        /*IResponse response = new Response();
+        response.setRequestId(request.getRequestId());
+        response.setValue(value);*/
         return response;
     }
 

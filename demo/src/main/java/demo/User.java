@@ -31,6 +31,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "demo.User = = >\n" + "id : " + id + " , name : " + name + " , password : " + password;
+        return "demo.User = = >\n" + "id : " + this.id + " , name : " + this.name + " , password : " + this.password;
     }
 }

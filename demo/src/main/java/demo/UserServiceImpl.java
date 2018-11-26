@@ -12,4 +12,5 @@ public class UserServiceImpl implements UserService{
         user.setPassword("123456");
         return user;
     }
+
 }

@@ -1,7 +1,9 @@
 package fastrpc.rpc;
 
+import fastrpc.context.ServiceApplicationAwake;
 import fastrpc.context.annotation.Bean;
 import fastrpc.context.annotation.Weave;
+import fastrpc.context.register.ServiceContent;
 import fastrpc.exception.RpcCallbackException;
 import fastrpc.message.ExceptionResponse;
 import fastrpc.message.IRequest;
@@ -9,6 +11,7 @@ import fastrpc.message.IResponse;
 import fastrpc.message.Request;
 import fastrpc.proxy.ProviderProxyFactory;
 import fastrpc.serialize.GeneralSerialize;
+import fastrpc.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,21 +20,16 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Bean
-public class ProviderService {
+public class ProviderService implements ServiceApplicationAwake {
 
     Logger logger = LoggerFactory.getLogger(ProviderService.class);
 
-    @Weave
-    private StaticPanel staticPanel;
     @Weave
     private GeneralSerialize generalSerialize;
     @Weave
     private ProviderProxyFactory providerProxyFactory;
 
-
-    public void setPannel(StaticPanel pannel) {
-        this.staticPanel = pannel;
-    }
+    private ServiceContent serviceContent;
 
     public void doProcess(byte[] message) {
         if (message == null || message.length == 0) {
@@ -72,14 +70,14 @@ public class ProviderService {
 
         Object target = null;
 
-        Map<Class, Object> mappers = staticPanel.getMappers();
+        Map<String, Object> mappers = serviceContent.getServiceMapper();
         if (mappers == null || mappers.size() == 0) {
             logger.info("Can't match this service. back...");
             return null;
         }
 
-        for (Map.Entry<Class, Object> entry : mappers.entrySet()) {
-            if (clazz.isAssignableFrom(entry.getKey())) {
+        for (Map.Entry<String, Object> entry : mappers.entrySet()) {
+            if (clazz.getSimpleName().equalsIgnoreCase(entry.getKey())) {
                 target = entry.getValue();
             }
         }
@@ -100,5 +98,10 @@ public class ProviderService {
         }
 
         return resMessage;
+    }
+
+    @Override
+    public void setApplication(ServiceContent serviceContent) {
+        this.serviceContent = serviceContent;
     }
 }

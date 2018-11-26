@@ -3,7 +3,8 @@ package demo;
 import fastrpc.context.ApplicationConfig;
 import fastrpc.context.BootStrap;
 import fastrpc.context.RpcBeanContent;
-import fastrpc.context.register.ServiceContent;
+import fastrpc.netty.VirtualServer;
+import fastrpc.proxy.ClientProxyFactoty;
 
 public class Lab {
     public static void main(String[] args) {
@@ -31,9 +32,20 @@ public class Lab {
 
         ApplicationConfig config = new ApplicationConfig();
         config.setServicePath("demo");
-
         BootStrap bootStrap = new BootStrap(config);
         bootStrap.start();
+
+        RpcBeanContent content = bootStrap.getBeanContent();
+        VirtualServer server = content.getBean(VirtualServer.class);
+        server.accept();
+
+        ClientProxyFactoty client = content.getBean(ClientProxyFactoty.class);
+        UserService userService = (UserService) client.getProxy(UserService.class);
+        User user = userService.getUserInfo("123");
+
+        System.out.println(user);
+
+
 
     }
 }
