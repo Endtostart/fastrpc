@@ -49,7 +49,8 @@ public class RequestMethodHandler<T> implements InvocationHandler {
                 IRequest request = DefaultMessageHandler.buildRequest(clazz, method, args);
                 try {
                     Type returnType = method.getReturnType();
-                    IResponse response = clientService.doCall(request,returnType);
+                    //IResponse response = clientService.doCall(request,returnType);
+                    IResponse response = clientService.nioCall(request);
                     if (response.hasException()) {
                         RpcException rpcException = ((ExceptionResponse) response).getValue();
                         throw rpcException;

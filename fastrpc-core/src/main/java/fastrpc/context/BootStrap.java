@@ -2,6 +2,9 @@ package fastrpc.context;
 
 import fastrpc.context.config.ApplicationConfig;
 import fastrpc.context.register.ServiceContent;
+import fastrpc.context.support.ApplicationUtils;
+import fastrpc.rpc.ClientService;
+import fastrpc.transport.jdknio.NioServer;
 import fastrpc.utils.ClassUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,11 +19,8 @@ public class BootStrap {
     public BootStrap(ApplicationConfig config) {
         this.config = config;
     }
-
-    public void start() {
-        beanContent = new RpcBeanContent();
-        beanContent.init();
-
+    public void server() {
+        start();
         String servicePath = config.getServicePath();
         if (servicePath == null) {
             return;
@@ -28,12 +28,30 @@ public class BootStrap {
         serviceContent = new ServiceContent();
         serviceContent.register(servicePath);
 
-        // 后置依赖处理
-        postDepandence();
+        NioServer nioServer = new NioServer(ApplicationUtils.getServerPort());
+        nioServer.start();
     }
 
-    public void start(ApplicationConfig config) {
+    public void customer() {
+        start();
+        ClientService clientService = beanContent.getBean(ClientService.class);
+        clientService.startClient();
+    }
+
+    private void start() {
+        beanContent = new RpcBeanContent();
+        beanContent.init();
+
+        // 后置依赖处理
+        postDepandence();
+
+        // 植入全局操作
+        ApplicationUtils.setBeanContent(beanContent);
+    }
+
+    private void start(ApplicationConfig config) {
         this.config = config;
+        ApplicationUtils.setApplicationConfig(config);
         start();
     }
 
@@ -63,6 +81,32 @@ public class BootStrap {
             }
         }
     }
+
+    public Strap strap() {
+        return new BestStrap();
+    }
+
+    class BestStrap implements Strap{
+
+        public BestStrap() {
+
+        }
+
+        public BestStrap(ApplicationConfig conf) {
+            config = conf;
+        }
+
+        @Override
+        public void service() {
+            server();
+        }
+
+        @Override
+        public void start() {
+            customer();
+        }
+    }
+
 
     public ServiceContent getServiceContent() {
         return serviceContent;

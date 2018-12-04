@@ -15,12 +15,12 @@ public class ApplicationContext {
 
     // TODO 模拟类似于spring的bean容器
     static {
-        context.put(SerializeAdapterManager.class, new SerializeAdapterManager());
+       /* context.put(SerializeAdapterManager.class, new SerializeAdapterManager());
         context.put(ProviderProxyFactory.class, new ProviderProxyFactory());
         context.put(StaticPanel.class, new StaticPanel());
         context.put(SocketBuffer.class, new SocketBuffer());
 
-        context.put(ClientService.class, new ClientService());
+        context.put(ClientService.class, new ClientService());*/
     }
 
     public static void put(Class clazz, Object object) {

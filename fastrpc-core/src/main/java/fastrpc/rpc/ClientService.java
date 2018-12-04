@@ -3,12 +3,14 @@ package fastrpc.rpc;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import fastrpc.context.annotation.Bean;
 import fastrpc.context.annotation.Weave;
+import fastrpc.context.support.ApplicationUtils;
 import fastrpc.message.IRequest;
 import fastrpc.message.IResponse;
 import fastrpc.message.Response;
 import fastrpc.netty.NettyClient;
 import fastrpc.serialize.GeneralSerialize;
 import fastrpc.serialize.JsonSerializeFactory;
+import fastrpc.transport.jdknio.NioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,10 @@ public class ClientService<T> {
     private NettyClient client;
     @Weave
     private GeneralSerialize generalSerialize;
-
+    private NioClient nioClient;
+    public void startClient() {
+        nioClient = new NioClient(ApplicationUtils.getServiceHost(), ApplicationUtils.getServerPort()).init();
+    }
 
     public IResponse doCall(IRequest request) {
         logger.info("do calll >> request :");
@@ -54,6 +59,30 @@ public class ClientService<T> {
 
         //IResponse response = (IResponse) JsonSerializeFactory.getDecode().decode(result, resType);
         IResponse response = generalSerialize.decode(result, Response.class);
+        return response;
+    }
+
+    // 网络请求
+    public IResponse nioCall(IRequest request) {
+        logger.info("nio request =.=!");
+        IResponse response;
+        byte[] message = generalSerialize.encodeToByte(request);
+        InheritableThreadLocal<byte[]> threadLocal = nioClient.getSendMsg();
+        threadLocal.remove();
+        threadLocal.set(message);
+        nioClient.send();
+
+        InheritableThreadLocal<byte[]> resThreadLocal = nioClient.getResMsg();
+        while (true) {
+            if (resThreadLocal.get() != null) {
+                byte[] bytes = resThreadLocal.get();
+                resThreadLocal.remove();
+                response = generalSerialize.decode(bytes, Response.class);
+                logger.info("循环结束: 返回response 结果 == >>" + response.toString());
+                break;
+            }
+        }
+
         return response;
     }
 

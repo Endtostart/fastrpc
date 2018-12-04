@@ -13,6 +13,8 @@
 <modules>
   <module>fastrpc-core</module>
   <module>demo</module>
+    <module>demo-customer</module>
+    <module>demo-service</module>
 </modules>
 
 
