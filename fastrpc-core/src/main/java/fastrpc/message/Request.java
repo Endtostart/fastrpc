@@ -10,8 +10,6 @@ public class Request implements Serializable,IRequest{
 
     private String requestId;
 
-    private Method method;
-
     private String interfaceName;
 
     private String methodName;
@@ -20,18 +18,13 @@ public class Request implements Serializable,IRequest{
 
     private Object[] params;
 
-    public Request() {
+    public Request(){
 
     }
 
     @Override
     public String getRequestId() {
         return requestId;
-    }
-
-    @Override
-    public Method getMethod() {
-        return this.method;
     }
 
     @Override
@@ -57,11 +50,6 @@ public class Request implements Serializable,IRequest{
     @Override
     public void setRequestId(String requestId) {
         this.requestId = requestId;
-    }
-
-    @Override
-    public void setMethod(Method method) {
-        this.method = method;
     }
 
     @Override

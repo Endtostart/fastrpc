@@ -19,7 +19,6 @@ public class DefaultMessageHandler {
         request.setInterfaceName(interfaceName);
         request.setMethodName(methodName);
         request.setParams(args);
-        request.setMethod(method);
         return request;
     }
 

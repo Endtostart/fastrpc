@@ -91,7 +91,11 @@ public class ProviderService implements ServiceApplicationAwake {
 
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            if (ClassUtils.compareMethod(method, request.getMethod())) {
+           /* if (ClassUtils.compareMethod(method, request.getMethod())) {
+                method.invoke(target, request.getParams());
+            }*/
+           // TODO 判断是否是统一方法。暂用方法名，请求协议暂修改成只传方法名
+            if (method.getName().equalsIgnoreCase(request.getMethodName())) {
                 method.invoke(target, request.getParams());
             }
         }

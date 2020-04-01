@@ -9,6 +9,7 @@ import fastrpc.serialize.SerializeAdapterManager;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class ApplicationContext {
 
     private static Map<Class, Object> context = new HashMap();

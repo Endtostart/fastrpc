@@ -16,7 +16,7 @@ public class Application {
         CustomerConfig customerConfig = new CustomerConfig();
         customerConfig.setPort("8860");
         customerConfig.setRemoteIp("127.0.0.1");
-        customerConfig.setScanPath("free.com");
+        customerConfig.setScanPath("com.free");
 
         ApplicationConfig applicationConfig = new ApplicationConfig();
         applicationConfig.setServiceConfig(serviceConfig);

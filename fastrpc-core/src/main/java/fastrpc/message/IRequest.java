@@ -7,10 +7,6 @@ public interface IRequest {
 
     public String getRequestId();
 
-    public Method getMethod();
-
-    public void setMethod(Method method);
-
     public String getInterfaceName();
 
     public String getMethodName();

@@ -15,6 +15,7 @@ public class BootStrap {
     private ApplicationConfig config;
     private RpcBeanContent beanContent;
     private ServiceContent serviceContent;
+    private CustomerContext customerContext;
 
     public BootStrap(ApplicationConfig config) {
         this.config = config;
@@ -25,7 +26,7 @@ public class BootStrap {
         if (servicePath == null) {
             return;
         }
-        serviceContent = new ServiceContent();
+        serviceContent = beanContent.getBean(ServiceContent.class);
         serviceContent.register(servicePath);
 
         NioServer nioServer = new NioServer(ApplicationUtils.getServerPort());
@@ -36,6 +37,8 @@ public class BootStrap {
         start();
         ClientService clientService = beanContent.getBean(ClientService.class);
         clientService.startClient();
+        customerContext = beanContent.getBean(CustomerContext.class);
+        customerContext.register(config.getCustomerPath());
     }
 
     private void start() {
@@ -70,7 +73,7 @@ public class BootStrap {
                 for (Method method1 : methods) {
                     if (ClassUtils.compareMethod(method1, method)) {
                         try {
-                            method1.invoke(object, this.serviceContent);
+                            method1.invoke(object, beanContent.getBean(ServiceContent.class));
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
                         } catch (InvocationTargetException e) {
@@ -114,5 +117,9 @@ public class BootStrap {
 
     public RpcBeanContent getBeanContent() {
         return beanContent;
+    }
+
+    public CustomerContext getCustomerContext() {
+        return customerContext;
     }
 }

@@ -19,10 +19,14 @@ public class NioClient extends Thread implements Client {
     private SocketChannel channel;
     private InetSocketAddress inet;
     private Selector selector;
-    private ByteBuffer buffer = ByteBuffer.allocate(1024);
+    private ByteBuffer buffer = ByteBuffer.allocate(2048);
+
 
     private InheritableThreadLocal<byte[]> sendMsg = new InheritableThreadLocal();
     private InheritableThreadLocal<byte[]> resMsg = new InheritableThreadLocal();
+
+    private byte[] sendByte;
+    private byte[] resByte;
 
     Logger logger = LoggerFactory.getLogger(NioClient.class);
 
@@ -30,6 +34,13 @@ public class NioClient extends Thread implements Client {
         this.host = host;
         this.port = port;
     }
+
+    public NioClient addThreadLocal(InheritableThreadLocal<byte[]> sendMsg,InheritableThreadLocal<byte[]> resMsg) {
+        this.sendMsg = sendMsg;
+        this.resMsg = resMsg;
+        return this;
+    }
+
 
     public NioClient init() {
         inet = new InetSocketAddress(host, port);
@@ -48,10 +59,13 @@ public class NioClient extends Thread implements Client {
 
     @Override
     public void send() {
-        byte[] bytes = sendMsg.get();
+        /*byte[] bytes = sendMsg.get();*/
+        byte[] bytes = sendByte;
         buffer.clear();
-        buffer.get(bytes);
+        buffer.put(bytes);
+        //buffer.get(bytes);
         try {
+            buffer.flip();
             channel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,9 +97,19 @@ public class NioClient extends Thread implements Client {
                     } else if (key.isReadable()) {
                         buffer.clear();
                         sc.read(buffer);
-                        byte[] bytes = buffer.array();
-                        logger.info("From Server:" + new String(bytes));
-                        resMsg.set(bytes);
+                        buffer.flip();
+                        byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes, 0, buffer.remaining());
+
+                        resByte = bytes;
+                        /*resMsg.set(bytes);*/
+                    } else if (key.isWritable()) {
+                        /*if (sendMsg.get() != null) {
+                            send();
+                        }*/
+                        if (sendByte != null && sendByte.length > 0) {
+                            send();
+                        }
                     }
                 }
             }
@@ -109,5 +133,21 @@ public class NioClient extends Thread implements Client {
 
     public void setResMsg(InheritableThreadLocal<byte[]> resMsg) {
         this.resMsg = resMsg;
+    }
+
+    public byte[] getSendByte() {
+        return sendByte;
+    }
+
+    public void setSendByte(byte[] sendByte) {
+        this.sendByte = sendByte;
+    }
+
+    public byte[] getResByte() {
+        return resByte;
+    }
+
+    public void setResByte(byte[] resByte) {
+        this.resByte = resByte;
     }
 }

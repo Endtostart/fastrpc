@@ -17,6 +17,7 @@ import java.util.*;
 /**
  * TODO
  * 目前只实现了属性注入
+ * Rpc 框架内部上下文
  */
 public class RpcBeanContent implements BeanContent {
     private static final String packagePath = "fastrpc";

@@ -11,10 +11,13 @@ import fastrpc.netty.NettyClient;
 import fastrpc.serialize.GeneralSerialize;
 import fastrpc.serialize.JsonSerializeFactory;
 import fastrpc.transport.jdknio.NioClient;
+import fastrpc.utils.ThreadPoolUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Bean
 public class ClientService<T> {
@@ -25,8 +28,12 @@ public class ClientService<T> {
     @Weave
     private GeneralSerialize generalSerialize;
     private NioClient nioClient;
+
+    private InheritableThreadLocal<byte[]> sendMsg = new InheritableThreadLocal();
+    private InheritableThreadLocal<byte[]> resMsg = new InheritableThreadLocal();
+
     public void startClient() {
-        nioClient = new NioClient(ApplicationUtils.getServiceHost(), ApplicationUtils.getServerPort()).init();
+        nioClient = new NioClient(ApplicationUtils.getServiceHost(), ApplicationUtils.getServerPort()).addThreadLocal(sendMsg,resMsg).init();
     }
 
     public IResponse doCall(IRequest request) {
@@ -65,14 +72,17 @@ public class ClientService<T> {
     // 网络请求
     public IResponse nioCall(IRequest request) {
         logger.info("nio request =.=!");
-        IResponse response;
+        IResponse response = null;
         byte[] message = generalSerialize.encodeToByte(request);
-        InheritableThreadLocal<byte[]> threadLocal = nioClient.getSendMsg();
-        threadLocal.remove();
-        threadLocal.set(message);
-        nioClient.send();
+        /*sendMsg.remove();
+        sendMsg.set(message);*/
+        nioClient.setSendByte(message);
 
-        InheritableThreadLocal<byte[]> resThreadLocal = nioClient.getResMsg();
+        /*
+        ThreadPoolUtils.excute(()->{
+            nioClient.send();});*/
+
+       /* InheritableThreadLocal<byte[]> resThreadLocal = nioClient.getResMsg();
         while (true) {
             if (resThreadLocal.get() != null) {
                 byte[] bytes = resThreadLocal.get();
@@ -81,8 +91,39 @@ public class ClientService<T> {
                 logger.info("循环结束: 返回response 结果 == >>" + response.toString());
                 break;
             }
-        }
+        }*/
 
+        CompletableFuture<IResponse> completableFuture = CompletableFuture.supplyAsync(() -> {
+            IResponse innerRes;
+            while (true) {
+                /*if (resMsg.get() != null) {
+                    byte[] bytes = resMsg.get();
+                    resMsg.remove();
+                    innerRes = generalSerialize.decode(bytes, Response.class);
+                    logger.info("循环结束: 返回response 结果 == >>" + innerRes.toString());
+                    break;
+                }*/
+                byte[] res = nioClient.getResByte();
+                if (res != null && res.length > 0) {
+                    innerRes = generalSerialize.decode(res, Response.class);
+                    logger.info("循环结束: 返回response 结果 == >>" + innerRes.toString());
+                    break;
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return innerRes;
+        });
+        try {
+            response = completableFuture.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         return response;
     }
 
